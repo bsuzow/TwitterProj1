@@ -1,0 +1,118 @@
+---
+title: "#GunReformNow Tweets Word Cloud"
+author: "Bo Suzow"
+date: "February 15, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+The purpose of this report is to demonstrate how to collect Twitter tweets on search patterns and to build a word cloud.
+In order to collect Twitter data, you need to have a Twitter account and create an app at [apps.twitter.com](https://apps.twitter.com).
+
+## Data Collection
+
+The following code collect tweets of the ##GunReformNow hasgtag using [the rtweet package](https://cran.r-project.org/web/packages/rtweet/rtweet.pdf). The package is developed by [Mr. Kearney](https://github.com/mkearney/rtweet).
+
+Quick examples of functions of the package are [here](https://github.com/mkearney/rtweet/blob/master/vignettes/intro.Rmd).
+
+Note: Another package possibly used for Twitter data collect is twitteR. TwitteR pulls tweets in truncated text. Hence, it is not a good choice for a word cloud.
+
+
+For API Authentication, creating the token, saving it in RDS and setting the TWITTER_PAT environment var have to be completed. The detail steps are [here](https://github.com/mkearney/rtweet/blob/master/vignettes/auth.Rmd).
+
+
+```{r datacollect, message=FALSE}
+
+library("rtweet")
+
+# The following statement should be uncommented when a new tweet collection is intended.
+
+tweetsGunReform = search_tweets("#GunReformNow OR #gunreformnow OR \"Gun Reform Now\" OR \"gun reform now\"",
+                         n=15000,
+                         include_rts=FALSE,
+                         lang="en")
+
+
+```
+
+## Tweet Text Clean-up
+
+Before buildling a word cloud, unwanted characters should be removed. The following code is borrowed (with a minor tweak) from [a blog authored by Bailey Adam and Sugandha Choudhary](https://www.credera.com/blog/business-intelligence/twitter-analytics-using-r-part-2-create-word-cloud/)
+
+
+```{r textcleanup, message=FALSE, warning=FALSE}
+
+# Convert all text to lowercase
+library(stringi) # to use string's stri_trans_tolower()
+
+tweets.text = stringi::stri_trans_tolower(tweetsGunReform$text) # the tolower() does not handle special characters often embeded in tweets.
+
+# https://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs
+library(stringr)
+usableText=str_replace_all(tweets.text,"[^[:graph:]]", " ") 
+
+tweets.text = iconv(tweets.text,"latin1","ASCII"," ")
+
+# Replace @UserName
+tweets.text <- gsub("@\\w+", " ", tweets.text)
+
+# Remove punctuation
+tweets.text <- gsub("[[:punct:]]", " ", tweets.text)
+
+# Remove links
+tweets.text <- gsub("http\\w+", "", tweets.text)
+
+# Remove tabs
+tweets.text <- gsub("[ |\t]{2,}", " ", tweets.text)
+
+# Remove blank spaces at the beginning
+tweets.text <- gsub("^ ", "", tweets.text)
+
+# Remove blank spaces at the end
+tweets.text <- gsub(" $", "", tweets.text)
+
+
+```
+
+## [Stop Words](https://en.wikipedia.org/wiki/Stop_words) Removal
+
+Removing commonly used words such as "the" is achieved with [the tm package](https://cran.r-project.org/web/packages/tm/vignettes/tm.pdf)
+
+```{r stopwords,message=FALSE, warning=FALSE}
+
+library(tm)
+
+# create corpus
+tweets.text.corpus <- Corpus(VectorSource(tweets.text))
+
+#clean up by removing stop words
+tweets.text.corpus <- tm_map(tweets.text.corpus,function(x)removeWords(x,stopwords())) 
+
+```
+
+## Build A Word Cloud
+
+The following word cloud is created with 15000 tweets collected at around 8:30 a.m. PST on Valentines Day, 2018. 
+
+```{r}
+
+library(wordcloud)
+
+wordcloud(tweets.text.corpus,
+          min.freq = 2, 
+          scale=c(7,0.5),
+          colors=brewer.pal(8, "Dark2"), 
+          random.color= TRUE, 
+          random.order = FALSE, 
+          max.words = 100)
+
+```
+
+
+What does the cloud tell us?  Does the textual data visualization give insights or serve "just as eye candy?"
+[The "What are word clouds"" article](http://www.boostlabs.com/what-are-word-clouds-value-simple-visualizations/) offers good pieces of advice.
