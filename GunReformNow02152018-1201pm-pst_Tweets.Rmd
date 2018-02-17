@@ -53,8 +53,8 @@ library(stringi) # to use string's stri_trans_tolower()
 tweets.text = stringi::stri_trans_tolower(tweetsGunReform$text) # the tolower() does not handle special characters often embeded in tweets.
 
 # https://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs
-library(stringr)
-usableText=str_replace_all(tweets.text,"[^[:graph:]]", " ") 
+# library(stringr)
+# usableText=str_replace_all(tweets.text,"[^[:graph:]]", " ") 
 
 tweets.text = iconv(tweets.text,"latin1","ASCII"," ")
 
