@@ -16,9 +16,9 @@ In order to collect Twitter data, you need to have a Twitter account and create 
 
 ## Data Collection
 
-The following code collect tweets of the ##GunReformNow hasgtag using [the rtweet package](https://cran.r-project.org/web/packages/rtweet/rtweet.pdf). The package is developed by [Mr. Kearney](https://github.com/mkearney/rtweet).
+The following code collects the ##GunReformNow tweets using [the rtweet package](https://cran.r-project.org/web/packages/rtweet/rtweet.pdf). The package is developed by [Mr. Kearney](https://github.com/mkearney/rtweet).
 
-Quick examples of functions of the package are [here](https://github.com/mkearney/rtweet/blob/master/vignettes/intro.Rmd).
+Quick examples of the functions of the package are [here](https://github.com/mkearney/rtweet/blob/master/vignettes/intro.Rmd).
 
 Note: Another package possibly used for Twitter data collect is twitteR. TwitteR pulls tweets in truncated text. Hence, it is not a good choice for a word cloud.
 
